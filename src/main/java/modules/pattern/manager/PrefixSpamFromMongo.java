@@ -22,7 +22,6 @@ import org.bson.Document;
 
 import com.mongodb.spark.api.java.MongoSpark;
 
-import pattern.HistoryManager;
 import pattern.PatternHistory;
 import scala.Tuple2;
 
@@ -85,18 +84,18 @@ public class PrefixSpamFromMongo {
 		
 		JavaRDD<FreqSequence<String>> freqSequences = model.freqSequences().toJavaRDD();
 		
-		JavaRDD<Tuple2<List<List<String>>, Long>> histories = freqSequences.map( f -> new Tuple2(f.javaSequence(),  f.freq()));
+		JavaRDD<Tuple2<List<List<String>>, Long>> pattenrs = freqSequences.map( f -> new Tuple2(f.javaSequence(),  f.freq()));
 		
-		VoidFunction<Tuple2<List<List<String>>, Long>> storeHistory = new VoidFunction<Tuple2<List<List<String>>, Long>>() {
-			@Override
-			public void call(Tuple2<List<List<String>>, Long> arg0) throws Exception {
-				System.out.println("storing tuple: " + arg0.toString());
-				HistoryManager.updateHistory(arg0);
-			}
-		};
+		//Atualiza os históricos de padrões a partir dos padrões descobertos
+		pattenrs.foreach((p) -> HistoryManager.updateHistory(p));
 		
-		histories.foreach(storeHistory);
+		//Verifica o desaparecimento de um padrão, a partir da ultima execução
+		//HistoryManager.
 		
-		HistoryManager.printSavedPatterns();
+		//Limpa os padrões encontrados na ultima execução 
+		HistoryManager.clearLastExecutionCollection();
+		
+		//Grava os padrões atuais na base da ultima execução
+		pattenrs.foreach((p) -> HistoryManager.storeLastPatternExecution(p));
 	}
 }

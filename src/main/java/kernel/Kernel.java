@@ -1,6 +1,6 @@
 package kernel;
 
-import pattern.HistoryManager;
+import modules.pattern.manager.HistoryManager;
 
 public class Kernel {
 	public static void main(String[] args) {

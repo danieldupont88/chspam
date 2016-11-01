@@ -21,10 +21,13 @@ public class HistoryManager {
 	static MongoCollection<Document> patternHistoryCollection = db.getCollection("pattern-history");
 	
 	static MongoCollection<Document> lastCollectedPatternCollection = db.getCollection("last-pattern");
+	static MongoCollection<Document> thisCollectedPatternCollection = db.getCollection("this-pattern");
 
 	public static void updateHistory(Tuple2<List<List<String>>, Long> pattern) {
-		patternHistoryCollection.find();
-
+		
+		//armazena cada um dos padrões na base de execução atual
+		storeThisExecutionPatterns(pattern);
+		
 		Document query = new Document("pattern", pattern._1);
 
 		// Busca por um registro contendo o padrão
@@ -38,6 +41,7 @@ public class HistoryManager {
 			Document hist = new Document();
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2.longValue());
+			hist.put("type", "DISCOVERY");
 
 			BasicDBList historyArray = new BasicDBList();
 			historyArray.add(hist);
@@ -47,21 +51,62 @@ public class HistoryManager {
 		// Quando encontra, adiciona mais uma entrada na lista de histórico.
 		else {
 
-			//Procura o mesmo padrão na ultima execussão para verificar se ele ressurgiu
-			//ou apenas continua sendo um padrão
-			// if (PatternManager.getPatternInLastCollection() == null) {
-			//  - gravar como reborn 
-			//}
-			
 			Document hist = new Document();
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2);
+			if ((Long) findFirst.get("frequency") > pattern._2 ) {
+				hist.put("type", "REDUCTION");
+			} else if ((Long) findFirst.get("frequency") > pattern._2) {
+				hist.put("type", "GROWTH");
+			} else {
+				hist.put("type", "NO_CHANGE");
+			}
 
 			Document pushElement = new Document("$push", hist);
 			patternHistoryCollection.updateOne(query, pushElement);
 		}
 
 	}
+	
+	private static void storeThisExecutionPatterns(Tuple2<List<List<String>>, Long> pattern) {
+		
+		Document newPattern = new Document();
+		newPattern.put("pattern", pattern._1);
+
+		newPattern.put("frequency", pattern._2.longValue());
+		
+		patternHistoryCollection.insertOne(newPattern);
+	}
+	
+	public static void checkPatternExtintion() {
+		/*
+		 * Procura padrões da execução anterior na execução atal,
+		 * caso não encontre, cria um registro de histórico com frequência 0
+		 */
+		FindIterable<Document> documents = lastCollectedPatternCollection.find();
+		for (Document doc : documents) {
+
+			Document query = new Document("pattern", doc.get("pattern"));
+			Document findFirst = thisCollectedPatternCollection.find(query).first();
+			
+			if (findFirst == null) {
+				
+				Document newPatternHistory = new Document();
+				newPatternHistory.put("pattern", doc.get("pattern"));
+
+				Document hist = new Document();
+				hist.put("discoveredIn", new Date());
+				hist.put("frequency", 0);
+
+				Document pushElement = new Document("$push", hist);
+				patternHistoryCollection.updateOne(query, pushElement);
+				
+			}
+					
+		}
+		
+	}
+
 
 	public static void printSavedPatterns() {
 
@@ -93,6 +138,11 @@ public class HistoryManager {
 
 		newPatternHistory.put("history", hist);
 		lastCollectedPatternCollection.insertOne(newPatternHistory);
+	}
+
+	public static void clearThisExecutionCollection() {
+		thisCollectedPatternCollection.drop();
+		
 	}
 	
 }

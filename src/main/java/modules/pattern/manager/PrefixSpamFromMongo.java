@@ -20,8 +20,10 @@ import org.apache.spark.mllib.fpm.PrefixSpanModel;
 import org.apache.spark.mllib.fpm.PrefixSpan.FreqSequence;
 import org.bson.Document;
 
+import com.mongodb.client.FindIterable;
 import com.mongodb.spark.api.java.MongoSpark;
 
+import akka.pattern.Patterns;
 import pattern.PatternHistory;
 import scala.Tuple2;
 
@@ -86,14 +88,17 @@ public class PrefixSpamFromMongo {
 		
 		JavaRDD<Tuple2<List<List<String>>, Long>> pattenrs = freqSequences.map( f -> new Tuple2(f.javaSequence(),  f.freq()));
 		
+		//Limpa a base de padrões da execução atual
+		HistoryManager.clearThisExecutionCollection();	
+		
 		//Atualiza os históricos de padrões a partir dos padrões descobertos
 		pattenrs.foreach((p) -> HistoryManager.updateHistory(p));
 		
 		//Verifica o desaparecimento de um padrão, a partir da ultima execução
-		//HistoryManager.
+		HistoryManager.checkPatternExtintion();
 		
 		//Limpa os padrões encontrados na ultima execução 
-		HistoryManager.clearLastExecutionCollection();
+		HistoryManager.clearLastExecutionCollection();		
 		
 		//Grava os padrões atuais na base da ultima execução
 		pattenrs.foreach((p) -> HistoryManager.storeLastPatternExecution(p));

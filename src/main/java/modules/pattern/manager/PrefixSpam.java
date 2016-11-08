@@ -27,8 +27,8 @@ import akka.pattern.Patterns;
 import pattern.PatternHistory;
 import scala.Tuple2;
 
-public class PrefixSpamFromMongo {
-	public static void main(String[] args) {
+public class PrefixSpam {
+	public static void processPattenrs() {
 		
 		SparkConf conf = new SparkConf().setAppName("chspam").setMaster("local[2]")
 				.set("spark.executor.memory", "1g")

@@ -1,4 +1,4 @@
-package modules.history.composer;
+package modules.history.comp;
 
 import java.util.Map;
 

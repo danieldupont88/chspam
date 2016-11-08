@@ -1,5 +1,6 @@
 package modules.pattern.manager;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -50,13 +51,19 @@ public class HistoryManager {
 		}
 		// Quando encontra, adiciona mais uma entrada na lista de histórico.
 		else {
-
+			
 			Document hist = new Document();
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2);
-			if ((Long) findFirst.get("frequency") > pattern._2 ) {
+			
+			System.out.println(findFirst);
+			
+			List findFirstHistory = (ArrayList) findFirst.get("history");
+			Document lastHistory =  (Document) findFirstHistory.get(findFirstHistory.size() -1);
+			
+			if ((Long) lastHistory.get("frequency") > pattern._2 ) {
 				hist.put("type", "REDUCTION");
-			} else if ((Long) findFirst.get("frequency") > pattern._2) {
+			} else if ((Long) lastHistory.get("frequency") > pattern._2) {
 				hist.put("type", "GROWTH");
 			} else {
 				hist.put("type", "NO_CHANGE");
@@ -75,7 +82,7 @@ public class HistoryManager {
 
 		newPattern.put("frequency", pattern._2.longValue());
 		
-		patternHistoryCollection.insertOne(newPattern);
+		thisCollectedPatternCollection.insertOne(newPattern);
 	}
 	
 	public static void checkPatternExtintion() {
@@ -91,12 +98,10 @@ public class HistoryManager {
 			
 			if (findFirst == null) {
 				
-				Document newPatternHistory = new Document();
-				newPatternHistory.put("pattern", doc.get("pattern"));
-
 				Document hist = new Document();
 				hist.put("discoveredIn", new Date());
 				hist.put("frequency", 0);
+				hist.put("type", "EXTINTION");
 
 				Document pushElement = new Document("$push", hist);
 				patternHistoryCollection.updateOne(query, pushElement);

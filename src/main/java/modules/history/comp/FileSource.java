@@ -1,4 +1,4 @@
-package modules.history.composer;
+package modules.history.comp;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -9,28 +9,38 @@ import java.util.Map;
 import java.util.Scanner;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 
+import config.ChspamConfig;
 import context.Context;
 import context.Entity;
+import kernel.Kernel;
 
 public class FileSource {
+	final static Logger logger = Logger.getLogger(FileSource.class);
 
-	static String fileToRead = "C:/Dev/context/context-saple1.txt";
-	
-	public static void main(String[] args) {
-		generateContext();
-		
+	public static void processFile(File fileToProcess) {
 		
 		HistoryComposer hc = new HistoryComposer();
-		//hc.clearHistoryCollection();
-		hc.printSavedContexts();
+		
+		/*
+		 * Se a importação não é incremental, deleta todos os registros de históricos anteriormente importados
+		 */
+		if(ChspamConfig.getConfig().isIncrementalImport()) {
+			logger.info("IMPORT IS INCREMENTAL - DROPING HISTORY COLLECTION");
+			hc.clearHistoryCollection();
+		}
+		
+		importHistory(fileToProcess);
+		
+		if(ChspamConfig.getConfig().isDeleteFileAfterImport()) {
+			fileToProcess.delete();
+		}
 	}
 	
-	public static void generateContext(){
-	File file = new File(fileToRead);
-	
+	public static void importHistory(File fileToRead){
 		try {
-			Scanner scr = new Scanner(file);
+			Scanner scr = new Scanner(fileToRead);
 			while (scr.hasNext()) {				
 				String line = scr.next();
 				System.out.println("line : " + line);

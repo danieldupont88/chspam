@@ -46,12 +46,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>1.2.16</version>
-		</dependency>
-				
-		<dependency>
 		    <groupId>org.mongodb</groupId>
 		    <artifactId>mongo-java-driver</artifactId>
 		    <version>3.3.0</version>
@@ -74,6 +68,13 @@
 		    <artifactId>commons-collections4</artifactId>
 		    <version>4.1</version>
 		</dependency>
+		
+		<dependency>
+		    <groupId>log4j</groupId>
+		    <artifactId>log4j</artifactId>
+		    <version>1.2.16</version>
+		</dependency>
+		
 		
 	</dependencies>
 

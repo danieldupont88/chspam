@@ -13,6 +13,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import domain.AlertManager;
 import scala.Tuple2;
 
 public class HistoryManager {
@@ -23,7 +24,9 @@ public class HistoryManager {
 	
 	static MongoCollection<Document> lastCollectedPatternCollection = db.getCollection("last-pattern");
 	static MongoCollection<Document> thisCollectedPatternCollection = db.getCollection("this-pattern");
-
+	
+	static AlertManager alertManager = new AlertManager();
+	
 	public static void updateHistory(Tuple2<List<List<String>>, Long> pattern) {
 		
 		//armazena cada um dos padrões na base de execução atual
@@ -43,11 +46,14 @@ public class HistoryManager {
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2.longValue());
 			hist.put("type", "DISCOVERY");
-
+			
 			BasicDBList historyArray = new BasicDBList();
 			historyArray.add(hist);
 			newPatternHistory.put("history", historyArray);
 			patternHistoryCollection.insertOne(newPatternHistory);
+			
+			//verifica se há alertas a serem gerados
+			alertManager.verifyAlert(hist, newPatternHistory.getObjectId("_id").toHexString());
 		}
 		// Quando encontra, adiciona mais uma entrada na lista de histórico.
 		else {
@@ -55,8 +61,6 @@ public class HistoryManager {
 			Document hist = new Document();
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2);
-			
-			System.out.println(findFirst);
 			
 			List findFirstHistory = (ArrayList) findFirst.get("history");
 			Document lastHistory =  (Document) findFirstHistory.get(findFirstHistory.size() -1);
@@ -68,9 +72,11 @@ public class HistoryManager {
 			} else {
 				hist.put("type", "NO_CHANGE");
 			}
-
+			
 			Document pushElement = new Document("$push", hist);
 			patternHistoryCollection.updateOne(query, pushElement);
+			//verifica se há alertas a serem gerados
+			alertManager.verifyAlert(hist, findFirst.getObjectId("_id").toHexString());
 		}
 
 	}
@@ -106,6 +112,8 @@ public class HistoryManager {
 				Document pushElement = new Document("$push", hist);
 				patternHistoryCollection.updateOne(query, pushElement);
 				
+				//verifica se há alertas a serem gerados
+				alertManager.verifyAlert(hist, findFirst.getObjectId("_id").toHexString());
 			}
 					
 		}

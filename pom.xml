@@ -2,7 +2,7 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.chspam</groupId>
-	<artifactId>test</artifactId>
+	<artifactId>chspam</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
 	<build>
@@ -20,13 +20,18 @@
 	</build>
 
 	<dependencies>
-		
+		<dependency>
+			<groupId>chspam-services</groupId>
+  			<artifactId>chspam-services</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+				
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.11</artifactId>
 			<version>1.6.1</version>
 		</dependency>
-
+	
 		<dependency>
 		    <groupId>org.apache.spark</groupId>
 		    <artifactId>spark-mllib_2.11</artifactId>
@@ -68,12 +73,7 @@
 		    <artifactId>commons-collections4</artifactId>
 		    <version>4.1</version>
 		</dependency>
-		
-		<dependency>
-		    <groupId>log4j</groupId>
-		    <artifactId>log4j</artifactId>
-		    <version>1.2.16</version>
-		</dependency>
+
 		
 		
 	</dependencies>

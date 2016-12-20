@@ -58,22 +58,26 @@ public class HistoryManager {
 		// Quando encontra, adiciona mais uma entrada na lista de histórico.
 		else {
 			
+			
 			Document hist = new Document();
 			hist.put("discoveredIn", new Date());
 			hist.put("frequency", pattern._2);
 			
+			Document listItem = new Document("history", hist);
+			
 			List findFirstHistory = (ArrayList) findFirst.get("history");
+			
 			Document lastHistory =  (Document) findFirstHistory.get(findFirstHistory.size() -1);
 			
 			if ((Long) lastHistory.get("frequency") > pattern._2 ) {
 				hist.put("type", "REDUCTION");
-			} else if ((Long) lastHistory.get("frequency") > pattern._2) {
+			} else if ((Long) lastHistory.get("frequency") < pattern._2) {
 				hist.put("type", "GROWTH");
 			} else {
 				hist.put("type", "NO_CHANGE");
 			}
 			
-			Document pushElement = new Document("$push", hist);
+			Document pushElement = new Document("$push", listItem);
 			patternHistoryCollection.updateOne(query, pushElement);
 			//verifica se há alertas a serem gerados
 			alertManager.verifyAlert(hist, findFirst.getObjectId("_id").toHexString());
@@ -103,17 +107,25 @@ public class HistoryManager {
 			Document findFirst = thisCollectedPatternCollection.find(query).first();
 			
 			if (findFirst == null) {
+				// Busca por um registro contendo o padrão
+				Document findFirstOnHistory = patternHistoryCollection.find(query).first();
+				List findFirstHistory = (ArrayList) findFirstOnHistory.get("history");
+				Document lastHistory =  (Document) findFirstHistory.get(findFirstHistory.size() -1);
 				
-				Document hist = new Document();
-				hist.put("discoveredIn", new Date());
-				hist.put("frequency", 0);
-				hist.put("type", "EXTINTION");
-
-				Document pushElement = new Document("$push", hist);
-				patternHistoryCollection.updateOne(query, pushElement);
-				
-				//verifica se há alertas a serem gerados
-				alertManager.verifyAlert(hist, findFirst.getObjectId("_id").toHexString());
+				if (!lastHistory.get("type").equals("EXTINTION")) {
+					Document hist = new Document();
+					hist.put("discoveredIn", new Date());
+					hist.put("frequency", 0);
+					hist.put("type", "EXTINTION");
+	
+					Document listItem = new Document("history", hist);
+					
+					Document pushElement = new Document("$push", listItem);
+					patternHistoryCollection.updateOne(query, pushElement);
+					
+					//verifica se há alertas a serem gerados
+					alertManager.verifyAlert(hist, findFirst.getObjectId("_id").toHexString());
+				}
 			}
 					
 		}

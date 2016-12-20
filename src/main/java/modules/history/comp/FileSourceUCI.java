@@ -16,8 +16,8 @@ import context.Context;
 import context.Entity;
 import kernel.Kernel;
 
-public class FileSource {
-	final static Logger logger = Logger.getLogger(FileSource.class);
+public class FileSourceUCI {
+	final static Logger logger = Logger.getLogger(FileSourceUCI.class);
 	static HistoryComposer hc = new HistoryComposer();
 
 	public static void processFile(File fileToProcess) {
@@ -40,34 +40,26 @@ public class FileSource {
 	}
 	
 	public static void importHistory(File fileToRead){
+		
 		try {
 			Scanner scr = new Scanner(fileToRead);
+			
 			while (scr.hasNext()) {				
 				String line = scr.next();
-				System.out.println("line : " + line);
+				logger.info("line : " + line);
 				
-				List<String> splitedLine = Arrays.asList(StringUtils.split(line, "|"));
+				List<String> splitedLine = Arrays.asList(StringUtils.split(line, ";"));
 				Entity entity = new Entity(splitedLine.get(0));
 				Context c = new Context();
 				c.setEntity(entity);
+		
+				Map<String, String> placeCtxMap = new HashMap<String, String>();
+				placeCtxMap.put("PLACE", splitedLine.get(5));
+				c.setLocation(placeCtxMap); 
 				
-				List<String> contexts = Arrays.asList(StringUtils.split(splitedLine.get(1), ","));
-				for (String context : contexts) {
-					List<String> ctxComponent = Arrays.asList(StringUtils.split(context, ":"));
-					
-					//System.out.println("ctxComponent : " + ctxComponent);
-						
-						Map<String, String> ctxMap = new HashMap<String, String>();
-						
-						if (ctxComponent.get(0).equals("LOCATION")) { 
-							ctxMap.put("PLACE", ctxComponent.get(1));
-							c.setLocation(ctxMap); 
-						} else {
-							ctxMap.put("ACTION", ctxComponent.get(1));
-							c.setSituation(ctxMap);			
-						}
-				}
-				
+				Map<String, String> actionCtxMap = new HashMap<String, String>();
+				actionCtxMap.put("ACTION", splitedLine.get(3));
+				c.setSituation(actionCtxMap);			
 				
 				hc.saveContext(c);
 				System.out.println("c : " + c.toString());

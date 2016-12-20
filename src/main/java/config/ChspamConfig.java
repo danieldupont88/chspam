@@ -6,9 +6,6 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import jline.ClassNameCompletor;
-import kernel.Kernel;
-
 
 public class ChspamConfig {
 	final static Logger logger = Logger.getLogger(ChspamConfig.class);
@@ -114,7 +111,7 @@ public class ChspamConfig {
 	}
 	
 	public String toString() {
-		return String.format("sourceType [%s], /n timeInterval[%s], /n patternMaxLenght[%s], /n patternMinSupport[%s], /n filePath[%s]/n", sourceType, timeInterval, patternMaxLenght, patternMinSupport, filePath);
+		return String.format("sourceType [%s], timeInterval[%s], patternMaxLenght[%s], patternMinSupport[%s], filePath[%s]", sourceType, timeInterval, patternMaxLenght, patternMinSupport, filePath);
 	}
 	
 	public void readConfig() throws Exception {

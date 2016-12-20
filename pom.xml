@@ -4,6 +4,29 @@
 	<groupId>com.chspam</groupId>
 	<artifactId>chspam</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	
+	<repositories>
+	    <repository>
+	        <id>central</id>
+	        <name>Maven Central Repository</name>
+	        <url>http://repo1.maven.org/maven2</url>
+	    </repository>
+	</repositories>
+	
+	<pluginRepositories>
+	    <pluginRepository>
+	        <id>central</id>
+	        <name>Maven Plugin Repository</name>
+	        <url>http://repo1.maven.org/maven2</url>
+	        <layout>default</layout>
+	        <snapshots>
+	            <enabled>false</enabled>
+	        </snapshots>
+	        <releases>
+	            <updatePolicy>never</updatePolicy>
+	        </releases>
+	    </pluginRepository>
+	</pluginRepositories> 
 
 	<build>
 		<plugins>
@@ -20,12 +43,7 @@
 	</build>
 
 	<dependencies>
-		<dependency>
-			<groupId>chspam-services</groupId>
-  			<artifactId>chspam-services</artifactId>
-  			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-				
+		
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.11</artifactId>
@@ -37,7 +55,7 @@
 		    <artifactId>spark-mllib_2.11</artifactId>
 		    <version>1.6.1</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
@@ -73,9 +91,13 @@
 		    <artifactId>commons-collections4</artifactId>
 		    <version>4.1</version>
 		</dependency>
+		
+		<dependency>
+			<groupId>chspam-services</groupId>
+  			<artifactId>chspam-services</artifactId>
+  			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 
-		
-		
 	</dependencies>
 
 

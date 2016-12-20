@@ -16,8 +16,8 @@ import context.Context;
 import context.Entity;
 import kernel.Kernel;
 
-public class FileSource {
-	final static Logger logger = Logger.getLogger(FileSource.class);
+public class FileSourceLastFM {
+	final static Logger logger = Logger.getLogger(FileSourceLastFM.class);
 	static HistoryComposer hc = new HistoryComposer();
 
 	public static void processFile(File fileToProcess) {
@@ -40,11 +40,16 @@ public class FileSource {
 	}
 	
 	public static void importHistory(File fileToRead){
+		
+		int lineCount = 0;
+		
 		try {
 			Scanner scr = new Scanner(fileToRead);
+			
 			while (scr.hasNext()) {				
 				String line = scr.next();
-				System.out.println("line : " + line);
+				logger.info("line : " + line);
+				lineCount++;
 				
 				List<String> splitedLine = Arrays.asList(StringUtils.split(line, "|"));
 				Entity entity = new Entity(splitedLine.get(0));

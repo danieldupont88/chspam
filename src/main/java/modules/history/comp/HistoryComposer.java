@@ -27,10 +27,10 @@ public class HistoryComposer {
 		
 		Document contextDocument = new Document();
 		contextDocument.put("entity", parseEntityDocument(context.getEntity()));
-		if (!context.getLocation().isEmpty()) {
+		if (context.getLocation()!= null && !context.getLocation().isEmpty()) {
 			contextDocument.put("location", parseContextualInfoDocument(context.getLocation()));
 		}
-		if (!context.getSituation().isEmpty()) {
+		if ( context.getSituation() != null && !context.getSituation().isEmpty()) {
 			contextDocument.put("situation", parseContextualInfoDocument(context.getSituation()));
 		}
 		contextCollection.insertOne(contextDocument);		
